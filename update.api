@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<methodCall>
+   <methodName>nameserver.updateRecord</methodName>
+   <params>
+      <param>
+         <value>
+            <struct>
+               <member>
+                  <name>user</name>
+                  <value>
+                     <string>%USER%</string>
+                  </value>
+               </member>
+               <member>
+                  <name>lang</name>
+                  <value>
+                     <string>en</string>
+                  </value>
+               </member>
+               <member>
+                  <name>pass</name>
+                  <value>
+                     <string>%PASSWD%</string>
+                  </value>
+               </member>
+               <member>
+                  <name>id</name>
+                  <value>
+                     <int>%DNSID%</int>
+                  </value>
+               </member>
+               <member>
+                  <name>content</name>
+                  <value>
+                     <string>%NEWIP%</string>
+                  </value>
+               </member>
+               <member>
+                  <name>ttl</name>
+                  <value>
+                     <int>3600</int>
+                  </value>
+               </member>
+            </struct>
+         </value>
+      </param>
+   </params>
+</methodCall>
+
