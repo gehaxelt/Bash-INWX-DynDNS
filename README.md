@@ -15,8 +15,9 @@ This script does not require any additional tools. All tools should be available
 
 - 1. Create a new directory in your home folder. E.g. dyndns.
 
-```mkdir ~/dyndns
-cd ~/dyndns```
+```mkdir ~/dyndns```
+
+```cd ~/dyndns```
 
 - 2. Clone the files from github
 
