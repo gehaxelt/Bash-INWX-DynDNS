@@ -15,12 +15,13 @@ This script does not require any additional tools. All tools should be available
 
 - 1. Create a new directory in your home folder. E.g. dyndns.
 
-```mkdir ~/dyndns```
+```mkdir ~/dyndns
+cd ~/dyndns```
 
 - 2. Clone the files from github
 
 
-```git clone ```
+```git clone git@github.com:gehaxelt/Bash-INWX-DynDNS.git .```
 
 
 - 3. Edit the dnsupdate.sh and fill in your login credentials.
