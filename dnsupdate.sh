@@ -5,7 +5,7 @@ PASSWORD="" #INWX PASSWORD
 DNSID="" #DNS Entry ID
 APIHOST="https://api.domrobot.com/xmlrpc/"
 OLDIP=$(cat old.ip)
-NEWIP=$(curl -s ifconfig.me)
+NEWIP=$(curl -s curlmyip.com)
 
 if [ ! "$OLDIP" == "$NEWIP" ]; then
     echo $NEWIP > old.ip
