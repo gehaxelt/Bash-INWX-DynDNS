@@ -10,6 +10,6 @@ NEWIP=$(curl -s curlmyip.com)
 if [ ! "$OLDIP" == "$NEWIP" ]; then
     echo $NEWIP > old.ip
     DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSID/g;s/%NEWIP%/$NEWIP/g")
-    curl  -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml" --insecure > update.log
+    curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml" > update.log
 fi
 
