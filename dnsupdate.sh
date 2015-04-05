@@ -11,14 +11,14 @@ NEWIPv4=$(curl -s curlmyip.com)
 NEWIPv6=$(curl -s curlmyip6.com)
 
 if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
-    echo $NEWIP > old.ipv4
+    echo $NEWIPv4 > old.ipv4
     echo "Updating IPv4..." >> update.log
     DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSIDv4/g;s/%NEWIP%/$NEWIPv4/g")
     curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml" >> update.log
 fi
 
 if [ ! "$OLDIPv6" == "$NEWIPv6" ]; then
-    echo $NEWIP > old.ipv6
+    echo $NEWIPv6 > old.ipv6
     echo "Updating IPv6..." >> update.log
     DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSIDv6/g;s/%NEWIP%/$NEWIPv6/g")
     curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml" >> update.log
