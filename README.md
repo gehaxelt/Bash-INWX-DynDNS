@@ -1,7 +1,7 @@
 INWX DynDNS Script
 =================
 
-This is a small bash script, which works as a DynDNS updater. It works only with domains which are registered at [inwx.de](inwx.de). It only updates the ip record, if the ip has changed.
+This is a small bash script, which works as a DynDNS updater. It works only with domains which are registered at [inwx.de](https://inwx.de). It only updates the ip record, if the ip has changed.
 
 ##Requirements##
 
