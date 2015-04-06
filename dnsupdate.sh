@@ -6,10 +6,7 @@ DNSIDv4="" #DNS Entry ID
 DNSIDv6="" #DNS Entry ID
 APIHOST="https://api.domrobot.com/xmlrpc/"
 OLDIPv4=$(cat old.ipv4)
-OLDIPv6=$(cat old.ipv6)
 NEWIPv4=$(curl -s curlmyip.com)
-NEWIPv6=$(curl -s curlmyip6.com)
-
 if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
     echo $NEWIPv4 > old.ipv4
     echo "\n\nUpdating IPv4..." >> update.log
@@ -17,6 +14,8 @@ if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
     curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml" >> update.log
 fi
 
+OLDIPv6=$(cat old.ipv6)
+NEWIPv6=$(curl -s curlmyip6.com)
 if [ ! "$OLDIPv6" == "$NEWIPv6" ]; then
     echo $NEWIPv6 > old.ipv6
     echo "\n\nUpdating IPv6..." >> update.log
