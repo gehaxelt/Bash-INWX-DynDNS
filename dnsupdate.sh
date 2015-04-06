@@ -5,6 +5,12 @@ PASSWORD="" #INWX PASSWORD
 DNSIDv4="" #DNS Entry ID
 DNSIDv6="" #DNS Entry ID
 APIHOST="https://api.domrobot.com/xmlrpc/"
+CLEARLOG=1
+
+if [ $CLEARLOG -eq 1 ]; then
+	rm update.log
+fi
+
 OLDIPv4=$(cat old.ipv4)
 NEWIPv4=$(curl -s curlmyip.com)
 if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
