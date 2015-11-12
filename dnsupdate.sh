@@ -7,6 +7,7 @@ DNSIDv4="" # DNS Entry ID (A-record)
 DNSIDv6="" # DNS Entry ID (AAAA-record)
 APIHOST="https://api.domrobot.com/xmlrpc/" # API URL from inwx.de
 CLEARLOG=1 # switch to delete the log in each run turn to 0 for debugging
+# get recent and actual IPv4/IPv6
 OLDIPv4=$(cat old.ipv4)
 OLDIPv6=$(cat old.ipv6)
 NEWIPv4=$(curl -s ip4.nnev.de)
@@ -17,7 +18,7 @@ if [ $CLEARLOG -eq 1 ]; then
 	rm update.log
 fi
 
-# get recent and actual IPv4 and update the A-record
+# update the A-record
 if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
     echo $NEWIPv4 > old.ipv4
     echo "\n\nUpdating IPv4..." >> update.log
@@ -25,7 +26,7 @@ if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
     curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml" >> update.log
 fi
 
-# get recent and actual IPv6 and update the AAAA-record
+# update the AAAA-record
 if [ ! "$OLDIPv6" == "$NEWIPv6" ]; then
     echo $NEWIPv6 > old.ipv6
     echo "\n\nUpdating IPv6..." >> update.log
