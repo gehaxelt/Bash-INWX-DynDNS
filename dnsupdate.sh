@@ -7,6 +7,17 @@ DNSIDv4="" # DNS Entry ID (A-record)
 DNSIDv6="" # DNS Entry ID (AAAA-record)
 APIHOST="https://api.domrobot.com/xmlrpc/" # API URL from inwx.de
 CLEARLOG=1 # switch to delete the log in each run turn to 0 for debugging
+
+# create old.ipv4/6 if not available
+if ! [ -e old.ipv4 ]
+then
+	touch old.ipv4
+fi
+if ! [ -e old.ipv6 ]
+then
+	touch old.ipv6
+fi
+
 # get recent and actual IPv4/IPv6
 OLDIPv4=$(cat old.ipv4)
 OLDIPv6=$(cat old.ipv6)
