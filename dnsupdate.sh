@@ -12,7 +12,7 @@ APIHOST="https://api.domrobot.com/xmlrpc/" # API URL from inwx.de
 
 function get_v4_ip() {
     if [[ ! -e v4.pool ]]; then
-        log "No IPv4 pool (v4.pool file) found. Using https://ip4.nnev.de/"
+#        log "No IPv4 pool (v4.pool file) found. Using https://ip4.nnev.de/"
         echo $(curl -s "https://ip4.nnev.de/")
         return 0
     fi
@@ -32,7 +32,7 @@ function get_v4_ip() {
 function get_v6_ip() {
     if ! [ -e v6.pool ]
     then
-        log "No IPv6 pool (v6.pool file) found. Using https://ip6.nnev.de/"
+#        log "No IPv6 pool (v6.pool file) found. Using https://ip6.nnev.de/"
         echo $(curl -s "https://ip6.nnev.de/")
         return 0
     fi
