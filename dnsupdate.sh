@@ -81,7 +81,6 @@ if [[ ! -z "$DNSIDv4" ]]; then
 
     # update the A-record
     if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
-        echo $NEWIPv4 > old.ipv4
         log "Updating IPv4..."
         DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSIDv4/g;s/%NEWIP%/$NEWIPv4/g")
         RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
@@ -90,6 +89,7 @@ if [[ ! -z "$DNSIDv4" ]]; then
             log "Something went wrong updating the IPv4 address. Check the configuration and make sure you're not using Two-Factor-Authentication."
             exit 1
         fi
+        echo $NEWIPv4 > old.ipv4
         log "Updated IPv4: $OLDIPv4 --> $NEWIPv4"
     else
         log "IPv4: No changes"
@@ -107,7 +107,6 @@ if [[ ! -z "$DNSIDv6" ]]; then
 
     # update the AAAA-record
     if [ ! "$OLDIPv6" == "$NEWIPv6" ]; then
-        echo $NEWIPv6 > old.ipv6
         log "Updating IPv6..."
         DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSIDv6/g;s/%NEWIP%/$NEWIPv6/g")
         RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
@@ -116,6 +115,7 @@ if [[ ! -z "$DNSIDv6" ]]; then
             log "Something went wrong updating the IPv6 address. Check the configuration and make sure you're not using Two-Factor-Authentication."
             exit 1
         fi
+        echo $NEWIPv6 > old.ipv6
         log "Updated IPv6: $OLDIPv6 --> $NEWIPv6"
     else
         log "IPv6: No changes"
