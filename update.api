@@ -38,7 +38,7 @@
                <member>
                   <name>ttl</name>
                   <value>
-                     <int>3600</int>
+                     <int>300</int>
                   </value>
                </member>
             </struct>
