@@ -1,18 +1,32 @@
 #!/bin/bash
 
+# curl -s = silent mode
+# if [ -z "$OLDIPv4" ] = true if $OLDIPv4 (a string) is null -> https://stackoverflow.com/a/18096739/11458487
 # Configuration ################################################################
-USERNAME=""         # Your username at INWX
-PASSWORD=""         # Your password at INWX
-DNSIDv4="1"          # The ID of the A record
-DNSIDv6=""          # The ID of the AAAA record
-SILENT=false        # Should the script write a logfile? (true | false)
+USERNAME=""         		# Your username at INWX
+PASSWORD=""     		# Your password at INWX
+DNSIDv4="1"       	   	# The ID of the A record
+DNSIDv6=""          		# The ID of the AAAA record
+SILENT=false        		# Should the script write a logfile? (true | false)
+UPDATEURLv4=""			# Your prefered host to get the IPv4 from
+UPDATEURLv6=""			# Your prefered host to get the IPv6 from
 ################################################################################
 
 APIHOST="https://api.domrobot.com/xmlrpc/" # API URL from inwx.de
 
 function get_v4_ip() {
-    if [[ ! -e v4.pool ]]; then
-#        log "No IPv4 pool (v4.pool file) found. Using https://ip4.ident.me/"
+	if [ ! -z "$UPDATEURLv4" ]
+	then
+	# log before echo crash the script
+		#log "Host defined, get IP from $UPDATEURLv4"
+		# get this from https://unix.stackexchange.com/a/20793
+		echo $(host $UPDATEURLv4 | awk '/has address/ { print $4 ; exit }')
+		return 0
+	fi
+	
+    if [ ! -e v4.pool ]
+	then
+        #log "No IPv4 pool (v4.pool file) found. Using https://ip4.ident.me/"
         echo $(curl -s "https://v4.ident.me")
         return 0
     fi
@@ -30,9 +44,17 @@ function get_v4_ip() {
 }
 
 function get_v6_ip() {
+	if [ ! -z "$UPDATEURLv6" ]
+	then
+		#log "Host defined, get IP from $UPDATEURLv6"
+		# get this from https://unix.stackexchange.com/a/20793
+		echo $(host $UPDATEURLv6 | awk '/has address/ { print $4 ; exit }')
+		return 0
+	fi
+
     if ! [ -e v6.pool ]
     then
-#        log "No IPv6 pool (v6.pool file) found. Using https://ip6.ident.me/"
+        #log "No IPv6 pool (v6.pool file) found. Using https://ip6.ident.me/"
         echo $(curl -s "https://v6.ident.me/")
         return 0
     fi
@@ -75,7 +97,7 @@ if [[ ! -z "$DNSIDv4" ]]; then
     NEWIPv4=$(get_v4_ip)
     if [[ $? == 1 ]]; then
         echo $NEWIPv4
-        log "Could not get a valid IPv4 address from the pool. Is the connection up?"
+        log "Could not get a valid IPv4 address from the pool or URL. Is the connection up?"
         exit 1
     fi
 
