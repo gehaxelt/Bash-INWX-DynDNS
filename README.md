@@ -31,7 +31,8 @@ git clone git@github.com:gehaxelt/Bash-INWX-DynDNS.git .
 nano dnsupdate.sh
 ```
 
-4. Get the wished dns entry id from the inwx website and set it in the script. See below how to get the ID.
+4. Get the wished dns entry ID from the inwx website and set it in the script. See below how to get the ID.<br />
+When you not have an ID (like IPv6) than use ```DNSIDsv6=("")```. When you have one ID (like 7654321), use ```DNSIDsv6=("7654321")``` and if you have multiple IDs use ```DNSIDsv6=("7654321" "8901234")```, same usage for IPv4.
 5. Edit your crontab. For a 5-minutes update use: ```*/5 * * * * cd /home/$USER/dyndns && bash dnsupdate.sh```
 ```
 crontab -e
