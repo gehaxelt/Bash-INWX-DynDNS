@@ -18,14 +18,13 @@ APIHOST="https://api.domrobot.com/xmlrpc/" 	# API URL from inwx.de
 # Define functions #############################################################
 function log() {
 	# Only log if $SILENT is false
-	$SILENT || echo "$(date --utc) | $1" | tee -a update.log
+	$SILENT || echo "$(date) | $1" >> update.log
 }
 
 function get_v4_ip() {
 	if [ ! -z "$UPDATEURLv4" ]
 	then
-	# log before echo crash the script
-		#log "Host defined, get IP from $UPDATEURLv4"
+		log "Host defined, get IP from $UPDATEURLv4"
 		# get this from https://unix.stackexchange.com/a/20793
 		echo $(host $UPDATEURLv4 | awk '/has address/ { print $4 ; exit }')
 		return 0
@@ -33,7 +32,7 @@ function get_v4_ip() {
 	
 	if [ ! -e v4.pool ]
 	then
-		#log "No IPv4 pool (v4.pool file) found. Using https://ip4.ident.me/"
+		log "No IPv4 pool (v4.pool file) found. Using https://ip4.ident.me/"
 		echo $(curl -s "https://v4.ident.me")
 		return 0
 	fi
@@ -53,7 +52,7 @@ function get_v4_ip() {
 function get_v6_ip() {
 	if [ ! -z "$UPDATEURLv6" ]
 	then
-		#log "Host defined, get IP from $UPDATEURLv6"
+		log "Host defined, get IP from $UPDATEURLv6"
 		# get this from https://unix.stackexchange.com/a/20793
 		echo $(host $UPDATEURLv6 | awk '/has address/ { print $4 ; exit }')
 		return 0
@@ -61,7 +60,7 @@ function get_v6_ip() {
 
 	if ! [ -e v6.pool ]
 	then
-		#log "No IPv6 pool (v6.pool file) found. Using https://ip6.ident.me/"
+		log "No IPv6 pool (v6.pool file) found. Using https://ip6.ident.me/"
 		echo $(curl -s "https://v6.ident.me/")
 		return 0
 	fi
