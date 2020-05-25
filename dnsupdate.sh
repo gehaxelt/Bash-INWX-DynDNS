@@ -6,7 +6,7 @@
 USERNAME=""         				# Your username at INWX
 PASSWORD=""     				# Your password at INWX
 DNSIDsv4=("1" "2")       	   		# The ID of the A record
-DNSIDsv6=("")          				# The ID of the AAAA record
+DNSIDsv6=()          				# The ID of the AAAA record
 SILENT=false        				# Should the script write a logfile? (true | false)
 UPDATEURLv4=""					# Your prefered host to get the IPv4 from
 UPDATEURLv6=""					# Your prefered host to get the IPv6 from
@@ -88,23 +88,30 @@ for DNSID in ${DNSIDS[@]}; do
 		log "Entry $DNSID, v6 starts"
 	fi
 
-	# create old.ipv4/6 if not available
-	if ! [ -e "$DNSID"_old.ipv4 ]
+	# check if the IPv4/6 array exists, then create old.ipv4/6 if not available
+	# finally get recent IPv4/IPv6
+	if [ ${#DNSIDsv4[@]} -ne 0 ]
 	then
-		touch "$DNSID"_old.ipv4
+		if ! [ -e old.ipv4 ]
+		then
+			touch old.ipv4
+		fi
+		OLDIPv4=$(cat old.ipv4)
 	fi
-	if ! [ -e "$DNSID"_old.ipv6 ]
+	if [ ${#DNSIDsv6[@]} -ne 0 ]
 	then
-		touch "$DNSID"_old.ipv6
+		if ! [ -e old.ipv6 ]
+		then
+			touch old.ipv6
+		fi
+		OLDIPv6=$(cat old.ipv6)
 	fi
 
-	# get recent and actual IPv4/IPv6
-	OLDIPv4=$(cat "$DNSID"_old.ipv4)
-	OLDIPv6=$(cat "$DNSID"_old.ipv6)
 	# Write "(empty)" if the files are empty for nice output on first run.
 	if [ -z "$OLDIPv4" ]; then OLDIPv4="(empty)"; fi
 	if [ -z "$OLDIPv6" ]; then OLDIPv6="(empty)"; fi
 
+	# get actual IPv4/IPv6
 	if [[ "$ISIPv4" = true ]]; then 
 		NEWIPv4=$(get_v4_ip)
 		if [[ $? == 1 ]]; then
@@ -115,7 +122,7 @@ for DNSID in ${DNSIDS[@]}; do
 
 		# update the A-record
 		if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
-			log "Updating IPv4..."
+			log "Updating IPv4 to $NEWIPv4"
 			DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSID/g;s/%NEWIP%/$NEWIPv4/g")
 			RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
 
@@ -123,7 +130,7 @@ for DNSID in ${DNSIDS[@]}; do
 				log "Something went wrong updating the IPv4 address. Check the configuration and make sure you're not using Two-Factor-Authentication."
 				exit 1
 			fi
-			echo $NEWIPv4 > "$DNSID"_old.ipv4
+			echo $NEWIPv4 > old.ipv4
 			log "Updated IPv4: $OLDIPv4 --> $NEWIPv4"
 		else
 			log "IPv4: No changes"
@@ -141,7 +148,7 @@ for DNSID in ${DNSIDS[@]}; do
 
 		# update the AAAA-record
 		if [ ! "$OLDIPv6" == "$NEWIPv6" ]; then
-			log "Updating IPv6..."
+			log "Updating IPv6 to $NEWIPv6"
 			DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSID/g;s/%NEWIP%/$NEWIPv6/g")
 			RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
 
@@ -149,7 +156,7 @@ for DNSID in ${DNSIDS[@]}; do
 				log "Something went wrong updating the IPv6 address. Check the configuration and make sure you're not using Two-Factor-Authentication."
 				exit 1
 			fi
-			echo $NEWIPv6 > "$DNSID"_old.ipv6
+			echo $NEWIPv6 > old.ipv6
 			log "Updated IPv6: $OLDIPv6 --> $NEWIPv6"
 		else
 			log "IPv6: No changes"
