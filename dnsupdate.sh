@@ -5,6 +5,8 @@
 # Configuration ################################################################
 USERNAME=""         				# Your username at INWX
 PASSWORD=""     				# Your password at INWX
+DOMAIN=""					# Your domain name at INWX
+DNSSERVER="@ns.inwx.de"				# DNS server to check domain (must be preceeded by @)
 DNSIDsv4=("1" "2")       	   		# The ID of the A record
 DNSIDsv6=()          				# The ID of the AAAA record
 SILENT=false        				# Should the script write a logfile? (true | false)
@@ -88,28 +90,15 @@ for DNSID in ${DNSIDS[@]}; do
 		log "Entry $DNSID, v6 starts"
 	fi
 
-	# check if the IPv4/6 array exists, then create old.ipv4/6 if not available
 	# finally get recent IPv4/IPv6
 	if [ ${#DNSIDsv4[@]} -ne 0 ]
 	then
-		if ! [ -e old.ipv4 ]
-		then
-			touch old.ipv4
-		fi
-		OLDIPv4=$(cat old.ipv4)
+		OLDIPv4=$(dig $DNSSERVER A +short $DOMAIN)
 	fi
 	if [ ${#DNSIDsv6[@]} -ne 0 ]
 	then
-		if ! [ -e old.ipv6 ]
-		then
-			touch old.ipv6
-		fi
-		OLDIPv6=$(cat old.ipv6)
+		OLDIPv6=$(dig $DNSServer AAAA +short $DOMAIN)
 	fi
-
-	# Write "(empty)" if the files are empty for nice output on first run.
-	if [ -z "$OLDIPv4" ]; then OLDIPv4="(empty)"; fi
-	if [ -z "$OLDIPv6" ]; then OLDIPv6="(empty)"; fi
 
 	# get actual IPv4/IPv6
 	if [[ "$ISIPv4" = true ]]; then 
