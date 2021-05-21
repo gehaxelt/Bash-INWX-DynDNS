@@ -45,7 +45,6 @@ function get_v4_ip() {
 			return 0
 		fi
 	done
-
 	return 1
 }
 
@@ -73,94 +72,100 @@ function get_v6_ip() {
 			return 0
 		fi
 	done
-
 	return 1
+}
+
+# Usage example: change_ip "IPv4" $DNSID $OLDIPv4 $NEWIPv4
+function change_ip() {
+	IPCAT=$1
+	DNSID=$2
+	OLDIP=$3
+	NEWIP=$4
+	if [ ! "$OLDIP" == "$NEWIP" ]; then
+		log "Updating $IPCAT to $NEWIP"
+		DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSID/g;s/%NEWIP%/$NEWIP/g")
+		RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
+
+		if ! grep -q "Command completed successfully" <<< "$RET"; then
+			log "Something went wrong updating the $IPCAT address. Check the configuration and make sure you're not using Two-Factor-Authentication."
+			exit 1
+		fi
+		log "Updated $IPCAT: $OLDIP --> $NEWIP"
+	else
+		log "$IPCAT: No changes"
+	fi
+	return 0
+}
+
+# Usage example: write_ip_to_file "old.ipv4" $OLDIPv4 $NEWIPv4
+function write_ip_to_file() {
+	FILENAME=$1
+	OLDIP=$2
+	NEWIP=$3
+	if [ ! -z "$NEWIP" ]
+	then
+		if [ $OLDIP != $NEWIP ]
+		then
+			echo $NEWIP > $FILENAME
+			log "IP: $NEWIP in $FILENAME written"
+		else
+			log "IP: $NEWIP already in $FILENAME"
+		fi
+	fi
+	return 0
 }
 ################################################################################
 # Do the update if needed ######################################################
+# check if the IPv4/6 array exists, then create old.ipv4/6 if not available and get new IPs
+log "##################BEGINN OF UPDATE#################"
+if [ ${#DNSIDsv4[@]} -ne 0 ]
+then
+	if ! [ -e old.ipv4 ]
+	then
+		echo "empty" > old.ipv4
+	fi
+	OLDIPv4=$(cat old.ipv4)
+	NEWIPv4=$(get_v4_ip)
+	if [[ $? == 1 ]] || [ -z "$NEWIPv4" ]; then
+		echo $NEWIPv4
+		log "Could not get a valid IPv4 address from the pool or URL. Is the connection up?"
+		exit 1
+	fi
+fi
+if [ ${#DNSIDsv6[@]} -ne 0 ]
+then
+	if ! [ -e old.ipv6 ]
+	then
+		echo "empty" > old.ipv6
+	fi
+	OLDIPv6=$(cat old.ipv6)
+	NEWIPv6=$(get_v6_ip)
+	if [[ $? == 1 ]] || [ -z "$NEWIPv6" ]; then
+		log "Could not get a valid IPv6 address from the pool or URL. Is the connection up?"
+		exit 1
+	fi
+fi
+
 for DNSID in ${DNSIDS[@]}; do
 	# checking if the entry is v4 or not, see https://stackoverflow.com/a/15394738/11458487
 	if [[ " ${DNSIDsv4[@]} " =~ " ${DNSID} " ]]; then
 		ISIPv4=true
-		log "Entry $DNSID, v4 starts"
+		log "Entry $DNSID, IPv4 starts"
 	else
 		ISIPv4=false
-		log "Entry $DNSID, v6 starts"
+		log "Entry $DNSID, IPv6 starts"
 	fi
 
-	# check if the IPv4/6 array exists, then create old.ipv4/6 if not available
-	# finally get recent IPv4/IPv6
-	if [ ${#DNSIDsv4[@]} -ne 0 ]
-	then
-		if ! [ -e old.ipv4 ]
-		then
-			touch old.ipv4
-		fi
-		OLDIPv4=$(cat old.ipv4)
-	fi
-	if [ ${#DNSIDsv6[@]} -ne 0 ]
-	then
-		if ! [ -e old.ipv6 ]
-		then
-			touch old.ipv6
-		fi
-		OLDIPv6=$(cat old.ipv6)
-	fi
-
-	# Write "(empty)" if the files are empty for nice output on first run.
-	if [ -z "$OLDIPv4" ]; then OLDIPv4="(empty)"; fi
-	if [ -z "$OLDIPv6" ]; then OLDIPv6="(empty)"; fi
-
-	# get actual IPv4/IPv6
-	if [[ "$ISIPv4" = true ]]; then 
-		NEWIPv4=$(get_v4_ip)
-		if [[ $? == 1 ]]; then
-			echo $NEWIPv4
-			log "Could not get a valid IPv4 address from the pool or URL. Is the connection up?"
-			exit 1
-		fi
-
+	if [[ "$ISIPv4" = true ]]; then
 		# update the A-record
-		if [ ! "$OLDIPv4" == "$NEWIPv4" ]; then
-			log "Updating IPv4 to $NEWIPv4"
-			DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSID/g;s/%NEWIP%/$NEWIPv4/g")
-			RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
-
-			if ! grep -q "Command completed successfully" <<< "$RET"; then
-				log "Something went wrong updating the IPv4 address. Check the configuration and make sure you're not using Two-Factor-Authentication."
-				exit 1
-			fi
-			echo $NEWIPv4 > old.ipv4
-			log "Updated IPv4: $OLDIPv4 --> $NEWIPv4"
-		else
-			log "IPv4: No changes"
-		fi
+		change_ip "IPv4" $DNSID $OLDIPv4 $NEWIPv4
 	else
 		log "Skipping IPv4: No DNS record ID set"
 	fi
 
-	if [[ "$ISIPv4" = false ]]; then 
-		NEWIPv6=$(get_v6_ip)
-		if [[ $? == 1 ]]; then
-			log "Could not get a valid IPv6 address from the pool or URL. Is the connection up?"
-			exit 1
-		fi
-
+	if [[ "$ISIPv4" = false ]]; then
 		# update the AAAA-record
-		if [ ! "$OLDIPv6" == "$NEWIPv6" ]; then
-			log "Updating IPv6 to $NEWIPv6"
-			DATA=$(cat update.api | sed "s/%PASSWD%/$PASSWORD/g;s/%USER%/$USERNAME/g;s/%DNSID%/$DNSID/g;s/%NEWIP%/$NEWIPv6/g")
-			RET=$(curl  -s -X POST -d "$DATA" "$APIHOST" --header "Content-Type:text/xml")
-
-			if ! grep -q "Command completed successfully" <<< "$RET"; then
-				log "Something went wrong updating the IPv6 address. Check the configuration and make sure you're not using Two-Factor-Authentication."
-				exit 1
-			fi
-			echo $NEWIPv6 > old.ipv6
-			log "Updated IPv6: $OLDIPv6 --> $NEWIPv6"
-		else
-			log "IPv6: No changes"
-		fi
+		change_ip "IPv6" $DNSID $OLDIPv6 $NEWIPv6
 	else
 		log "Skipping IPv6: No DNS record ID set"
 	fi
@@ -169,4 +174,10 @@ for DNSID in ${DNSIDS[@]}; do
 	log "###################################################"
 done
 
+# save new IPs in old file (only if they are different), these are now the old IPs
+write_ip_to_file "old.ipv4" $OLDIPv4 $NEWIPv4
+write_ip_to_file "old.ipv6" $OLDIPv6 $NEWIPv6
+
+log "###################END OF UPDATE###################"
+log "###################################################"
 ################################################################################
