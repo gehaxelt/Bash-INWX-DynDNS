@@ -76,6 +76,26 @@ function get_v6_ip() {
 
 	return 1
 }
+
+# check if the IPv4/6 array exists, then create old.ipv4/6 if not available
+# finally get recent IPv4/IPv6
+if [ ${#DNSIDsv4[@]} -ne 0 ]
+then
+	if ! [ -e old.ipv4 ]
+	then
+		touch old.ipv4
+	fi
+	OLDIPv4=$(cat old.ipv4)
+fi
+if [ ${#DNSIDsv6[@]} -ne 0 ]
+then
+	if ! [ -e old.ipv6 ]
+	then
+		touch old.ipv6
+	fi
+	OLDIPv6=$(cat old.ipv6)
+fi
+
 ################################################################################
 # Do the update if needed ######################################################
 for DNSID in ${DNSIDS[@]}; do
@@ -88,24 +108,6 @@ for DNSID in ${DNSIDS[@]}; do
 		log "Entry $DNSID, v6 starts"
 	fi
 
-	# check if the IPv4/6 array exists, then create old.ipv4/6 if not available
-	# finally get recent IPv4/IPv6
-	if [ ${#DNSIDsv4[@]} -ne 0 ]
-	then
-		if ! [ -e old.ipv4 ]
-		then
-			touch old.ipv4
-		fi
-		OLDIPv4=$(cat old.ipv4)
-	fi
-	if [ ${#DNSIDsv6[@]} -ne 0 ]
-	then
-		if ! [ -e old.ipv6 ]
-		then
-			touch old.ipv6
-		fi
-		OLDIPv6=$(cat old.ipv6)
-	fi
 
 	# Write "(empty)" if the files are empty for nice output on first run.
 	if [ -z "$OLDIPv4" ]; then OLDIPv4="(empty)"; fi
